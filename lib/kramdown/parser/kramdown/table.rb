@@ -79,7 +79,7 @@ module Kramdown
                     (cells.empty? ? cells : cells.last) << f
                     cells.concat(l)
                   else
-                    delim = (c.value.scan(/`+/).max || '') + '`'
+                    delim = (c.value.scan(/`+/).max || EMPTY_STR) + '`'
                     tmp = "#{delim}#{' ' if delim.size > 1}#{c.value}#{' ' if delim.size > 1}#{delim}"
                     (cells.empty? ? cells : cells.last) << tmp
                   end

@@ -105,10 +105,10 @@ module Kramdown
 
       def generate_gfm_header_id(text)
         result = text.downcase
-        result.gsub!(NON_WORD_RE, '')
+        result.gsub!(NON_WORD_RE, EMPTY_STR)
         result.tr!(" \t", '-')
         @id_counter[result] += 1
-        result << (@id_counter[result] > 0 ? "-#{@id_counter[result]}" : '')
+        result << (@id_counter[result] > 0 ? "-#{@id_counter[result]}" : EMPTY_STR)
         @options[:auto_id_prefix] + result
       end
 

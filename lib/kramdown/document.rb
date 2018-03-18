@@ -44,6 +44,7 @@ require 'kramdown/options'
 require 'kramdown/utils'
 
 module Kramdown
+  EMPTY_STR = ''.freeze
 
   # Return the data directory for kramdown.
   def self.data_dir

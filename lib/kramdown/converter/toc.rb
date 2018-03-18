@@ -28,7 +28,7 @@ module Kramdown
         super
         @toc = Element.new(:toc)
         @stack = []
-        @options[:template] = ''
+        @options[:template] = EMPTY_STR
       end
 
       def convert(el)

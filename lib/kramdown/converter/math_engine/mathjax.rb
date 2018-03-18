@@ -18,11 +18,11 @@ module Kramdown::Converter::MathEngine
     def self.call(converter, el, opts)
       type = el.options[:category]
       text = (el.value =~ /<|&/ ? "% <![CDATA[\n#{el.value} %]]>" : el.value)
-      text.gsub!(/<\/?script>?/, '')
+      text.gsub!(/<\/?script>?/, EMPTY_STR)
 
       preview = preview_string(converter, el, opts)
 
-      attr = {:type => "math/tex#{type == :block ? '; mode=display' : ''}"}
+      attr = {:type => "math/tex#{type == :block ? '; mode=display' : EMPTY_STR}"}
       if type == :block
         preview << converter.format_as_block_html('script', attr, text, opts[:indent])
       else
@@ -32,7 +32,7 @@ module Kramdown::Converter::MathEngine
 
     def self.preview_string(converter, el, opts)
       preview = converter.options[:math_engine_opts][:preview]
-      return '' unless preview
+      return EMPTY_STR unless preview
 
       preview = (preview == true ? converter.escape_html(el.value) : preview.to_s)
 

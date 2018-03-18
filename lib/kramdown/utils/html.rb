@@ -42,7 +42,7 @@ module Kramdown
 
       # Return the HTML representation of the attributes +attr+.
       def html_attributes(attr)
-        attr.map {|k,v| v.nil? || (k == 'id' && v.strip.empty?) ? '' : " #{k}=\"#{escape_html(v.to_s, :attribute)}\"" }.join('')
+        attr.map {|k,v| v.nil? || (k == 'id' && v.strip.empty?) ? EMPTY_STR : " #{k}=\"#{escape_html(v.to_s, :attribute)}\"" }.join(EMPTY_STR)
       end
 
       # :stopdoc:

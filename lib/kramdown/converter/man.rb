@@ -17,7 +17,7 @@ module Kramdown
     # man-pages(7) for information regarding the output.
     class Man < Base
 
-      def convert(el, opts = {:indent => 0, :result => ''}) #:nodoc:
+      def convert(el, opts = {:indent => 0, :result => EMPTY_STR}) #:nodoc:
         send("convert_#{el.type}", el, opts)
       end
 
@@ -169,7 +169,7 @@ module Kramdown
 
       def convert_td(el, opts)
         result = opts[:result]
-        opts[:result] = ''
+        opts[:result] = EMPTY_STR
         inner(el, opts)
         if opts[:result] =~ /\n/
           warning("Table cells using links are not supported")
@@ -194,7 +194,7 @@ module Kramdown
             el.attr['href'] == el.children[0].value
           newline(opts[:result]) << macro("UR", escape(el.attr['href'])) << macro("UE")
         elsif el.attr['href'].start_with?('mailto:')
-          newline(opts[:result]) << macro("MT", escape(el.attr['href'].sub(/^mailto:/, ''))) <<
+          newline(opts[:result]) << macro("MT", escape(el.attr['href'].sub(/^mailto:/, EMPTY_STR))) <<
             macro("UE")
         else
           newline(opts[:result]) << macro("UR", escape(el.attr['href']))

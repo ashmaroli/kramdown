@@ -21,7 +21,7 @@ module Kramdown
         @src.pos += @src.matched_size
         href = (@src[2].nil? ? "mailto:#{@src[1]}" : @src[1])
         el = Element.new(:a, nil, {'href' => href}, :location => start_line_number)
-        add_text(@src[1].sub(/^mailto:/, ''), el)
+        add_text(@src[1].sub(/^mailto:/, EMPTY_STR), el)
         @tree.children << el
       end
       define_parser(:autolink, AUTOLINK_START, '<')

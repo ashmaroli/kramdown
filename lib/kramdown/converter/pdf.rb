@@ -144,10 +144,10 @@ module Kramdown
         line = img.options[:location]
 
         if img.attr['src'].empty?
-          warning("Rendering an image without a source is not possible#{line ? " (line #{line})" : ''}")
+          warning("Rendering an image without a source is not possible#{line ? " (line #{line})" : EMPTY_STR}")
           return nil
         elsif img.attr['src'] !~ /\.jpe?g$|\.png$/
-          warning("Cannot render images other than JPEG or PNG, got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
+          warning("Cannot render images other than JPEG or PNG, got #{img.attr['src']}#{line ? " on line #{line}" : EMPTY_STR}")
           return nil
         end
 
@@ -291,11 +291,11 @@ module Kramdown
             row.children.each do |cell|
               if cell.children.any? {|child| child.options[:category] == :block}
                 line = el.options[:location]
-                warning("Can't render tables with cells containing block elements#{line ? " (line #{line})" : ''}")
+                warning("Can't render tables with cells containing block elements#{line ? " (line #{line})" : EMPTY_STR}")
                 return
               end
               cell_data = inner(cell, opts)
-              data.last << cell_data.map {|c| c[:text]}.join('')
+              data.last << cell_data.map {|c| c[:text]}.join(EMPTY_STR)
             end
           end
         end
@@ -333,7 +333,7 @@ module Kramdown
       def a_options(el, opts)
         hash = {:color => '000088'}
         if el.attr['href'].start_with?('#')
-          hash[:anchor] = el.attr['href'].sub(/\A#/, '')
+          hash[:anchor] = el.attr['href'].sub(/\A#/, EMPTY_STR)
         else
           hash[:link] = el.attr['href']
         end
@@ -409,7 +409,7 @@ module Kramdown
 
       def render_img(el, *args) #:nodoc:
         line = el.options[:location]
-        warning("Rendering span images is not supported for PDF converter#{line ? " (line #{line})" : ''}")
+        warning("Rendering span images is not supported for PDF converter#{line ? " (line #{line})" : EMPTY_STR}")
         nil
       end
 
@@ -434,7 +434,7 @@ module Kramdown
 
       def render_footnote(el, *args) #:nodoc:
         line = el.options[:location]
-        warning("Rendering #{el.type} not supported for PDF converter#{line ? " (line #{line})" : ''}")
+        warning("Rendering #{el.type} not supported for PDF converter#{line ? " (line #{line})" : EMPTY_STR}")
         nil
       end
       alias_method :render_raw, :render_footnote
@@ -551,7 +551,7 @@ module Kramdown
           if el.type == :text
             el.value
           else
-            el.children.map {|c| text_of_header.call(c)}.join('')
+            el.children.map {|c| text_of_header.call(c)}.join(EMPTY_STR)
           end
         end
 

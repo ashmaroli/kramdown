@@ -26,7 +26,7 @@ module Kramdown
 
       def initialize(root, options)
         super
-        @options[:template] = ''
+        @options[:template] = EMPTY_STR
       end
 
       def convert(el)

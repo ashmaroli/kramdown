@@ -49,7 +49,7 @@ module Kramdown
 
       def inner(el, opts = {:indent => 0})
         @stack.push(el)
-        result = ''
+        result = EMPTY_STR
         el.children.each_with_index do |inner_el, index|
           options = opts.dup
           options[:index] = index
@@ -74,7 +74,7 @@ module Kramdown
           el.value
         else
           el.value.gsub(/\A\n/) do
-            opts[:prev] && opts[:prev].type == :br ? '' : "\n"
+            opts[:prev] && opts[:prev].type == :br ? EMPTY_STR : "\n"
           end.gsub(/\s+/, ' ').gsub(ESCAPED_CHAR_RE) { "\\#{$1 || $2}" }
         end
       end
@@ -104,7 +104,7 @@ module Kramdown
       end
 
       def convert_header(el, opts)
-        res = ''
+        res = EMPTY_STR
         res << "#{'#' * output_header_level(el.options[:level])} #{inner(el, opts)}"
         res[-1, 1] = "\\#" if res[-1] == ?#
         res << "   {##{el.attr['id']}}" if el.attr['id'] && !el.attr['id'].strip.empty?
@@ -174,7 +174,7 @@ module Kramdown
       end
 
       def convert_dt(el, opts)
-        result = ''
+        result = EMPTY_STR
         if ial = ial_for_element(el)
           result << ial << " "
         end
@@ -194,7 +194,7 @@ module Kramdown
         if el.options[:category] == :span
           "<#{el.value}#{html_attributes(el.attr)}" << (!res.empty? || HTML_TAGS_WITH_BODY.include?(el.value) ? ">#{res}</#{el.value}>" : " />")
         else
-          output = ''
+          output = EMPTY_STR
           attr = el.attr.dup
           attr['markdown'] = '1' if markdown_attr
           output << "<#{el.value}#{html_attributes(attr)}"
@@ -243,7 +243,7 @@ module Kramdown
       end
 
       def convert_tbody(el, opts)
-        res = ''
+        res = EMPTY_STR
         res << inner(el, opts)
         res << '|' << '-'*10 << "\n" if opts[:next] && opts[:next].type == :tbody
         res
@@ -307,7 +307,7 @@ module Kramdown
       end
 
       def convert_codespan(el, opts)
-        delim = (el.value.scan(/`+/).max || '') + '`'
+        delim = (el.value.scan(/`+/).max || EMPTY_STR) + '`'
         "#{delim}#{' ' if delim.size > 1}#{el.value}#{' ' if delim.size > 1}#{delim}"
       end
 
@@ -330,12 +330,12 @@ module Kramdown
 
       def convert_em(el, opts)
         "*#{inner(el, opts)}*" +
-          (opts[:next] && [:em, :strong].include?(opts[:next].type) && !ial_for_element(el) ? '{::}' : '')
+          (opts[:next] && [:em, :strong].include?(opts[:next].type) && !ial_for_element(el) ? '{::}' : EMPTY_STR)
       end
 
       def convert_strong(el, opts)
         "**#{inner(el, opts)}**" +
-          (opts[:next] && [:em, :strong].include?(opts[:next].type) && !ial_for_element(el) ? '{::}' : '')
+          (opts[:next] && [:em, :strong].include?(opts[:next].type) && !ial_for_element(el) ? '{::}' : EMPTY_STR)
       end
 
       def convert_entity(el, opts)
@@ -356,7 +356,7 @@ module Kramdown
       end
 
       def convert_math(el, opts)
-        "$$#{el.value}$$" + (el.options[:category] == :block ? "\n" : '')
+        "$$#{el.value}$$" + (el.options[:category] == :block ? "\n" : EMPTY_STR)
       end
 
       def convert_abbreviation(el, opts)
@@ -372,7 +372,7 @@ module Kramdown
       end
 
       def create_link_defs
-        res = ''
+        res = EMPTY_STR
         res << "\n\n" if @linkrefs.size > 0
         @linkrefs.each_with_index do |el, i|
           title = parse_title(el.attr['title'])
@@ -382,7 +382,7 @@ module Kramdown
       end
 
       def create_footnote_defs
-        res = ''
+        res = EMPTY_STR
         @footnotes.each do |name, data|
           res << "[^#{name}]:\n"
           res << inner(data).chomp.split(/\n/).map {|l| "    #{l}"}.join("\n") + "\n\n"
@@ -391,8 +391,8 @@ module Kramdown
       end
 
       def create_abbrev_defs
-        return '' unless @root.options[:abbrev_defs]
-        res = ''
+        return EMPTY_STR unless @root.options[:abbrev_defs]
+        res = EMPTY_STR
         @root.options[:abbrev_defs].each do |name, text|
           res << "*[#{name}]: #{text}\n"
           res << ial_for_element(Element.new(:unused, nil, @root.options[:abbrev_attr][name])).to_s << "\n\n"
@@ -406,7 +406,7 @@ module Kramdown
           next if [:img, :a].include?(el.type) && ['href', 'src', 'alt', 'title'].include?(k)
           next if el.type == :header && k == 'id' && !v.strip.empty?
           if v.nil?
-            ''
+            EMPTY_STR
           elsif k == 'class' && !v.empty? && !v.index(/[\.#]/)
             " " + v.split(/\s+/).map {|w| ".#{w}"}.join(" ")
           elsif k == 'id' && !v.strip.empty?
@@ -414,20 +414,20 @@ module Kramdown
           else
             " #{k}=\"#{v.to_s}\""
           end
-        end.compact.join('')
-        res = "toc" << (res.strip.empty? ? '' : " #{res}") if (el.type == :ul || el.type == :ol) &&
+        end.compact.join(EMPTY_STR)
+        res = "toc" << (res.strip.empty? ? EMPTY_STR : " #{res}") if (el.type == :ul || el.type == :ol) &&
           (el.options[:ial][:refs].include?('toc') rescue nil)
-        res = "footnotes" << (res.strip.empty? ? '' : " #{res}") if (el.type == :ul || el.type == :ol) &&
+        res = "footnotes" << (res.strip.empty? ? EMPTY_STR : " #{res}") if (el.type == :ul || el.type == :ol) &&
           (el.options[:ial][:refs].include?('footnotes') rescue nil)
         if el.type == :dl && el.options[:ial] && el.options[:ial][:refs]
           auto_ids = el.options[:ial][:refs].select {|ref| ref =~ /\Aauto_ids/}.join(" ")
-          res = auto_ids << (res.strip.empty? ? '' : " #{res}") unless auto_ids.empty?
+          res = auto_ids << (res.strip.empty? ? EMPTY_STR : " #{res}") unless auto_ids.empty?
         end
         res.strip.empty? ? nil : "{:#{res}}"
       end
 
       def parse_title(attr)
-        attr.to_s.empty? ? '' : ' "' + attr.gsub(/"/, '&quot;') + '"'
+        attr.to_s.empty? ? EMPTY_STR : ' "' + attr.gsub(/"/, '&quot;') + '"'
       end
 
       # :startdoc:

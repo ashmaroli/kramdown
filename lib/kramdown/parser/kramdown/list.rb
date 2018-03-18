@@ -39,7 +39,7 @@ module Kramdown
           end
           indentation += content[/^ */].length
         end
-        content.sub!(/^\s*/, '')
+        content.sub!(/^\s*/, EMPTY_STR)
 
         [content, indentation, *PARSE_FIRST_LIST_LINE_REGEXP_CACHE[indentation]]
       end
@@ -74,7 +74,7 @@ module Kramdown
 
             item.value.sub!(self.class::LIST_ITEM_IAL) do |match|
               parse_attribute_list($1, item.options[:ial] ||= {})
-              ''
+              EMPTY_STR
             end
 
             list_start_re = (type == :ul ? /^( {0,#{[3, indentation - 1].min}}[+*-])([\t| ].*?\n)/ :
@@ -84,7 +84,7 @@ module Kramdown
             item.value = [item.value]
           elsif (result = @src.scan(content_re)) || (!last_is_blank && (result = @src.scan(lazy_re)))
             result.sub!(/^(\t+)/) { " " * 4 * $1.length }
-            indentation_found = result.sub!(indent_re, '')
+            indentation_found = result.sub!(indent_re, EMPTY_STR)
             if !nested_list_found && indentation_found && result =~ LIST_START
               item.value << ''
               nested_list_found = true
@@ -170,7 +170,7 @@ module Kramdown
           el = Element.new(:dt, nil, nil, :location => @src.current_line_number)
           term.sub!(self.class::LIST_ITEM_IAL) do
             parse_attribute_list($1, el.options[:ial] ||= {})
-            ''
+            EMPTY_STR
           end
           el.options[:raw_text] = term
           el.children << Element.new(:raw_text, term)
@@ -192,7 +192,7 @@ module Kramdown
 
             item.value.sub!(self.class::LIST_ITEM_IAL) do |match|
               parse_attribute_list($1, item.options[:ial] ||= {})
-              ''
+              EMPTY_STR
             end
 
             def_start_re = /^( {0,#{[3, indentation - 1].min}}:)([\t| ].*?\n)/
@@ -202,7 +202,7 @@ module Kramdown
             break
           elsif (result = @src.scan(content_re)) || (!last_is_blank && (result = @src.scan(lazy_re)))
             result.sub!(/^(\t+)/) { " "*($1 ? 4*$1.length : 0) }
-            result.sub!(indent_re, '')
+            result.sub!(indent_re, EMPTY_STR)
             item.value << result
             first_as_para = false
             last_is_blank = false

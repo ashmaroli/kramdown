@@ -101,7 +101,7 @@ module Kramdown
       def self.convert(tree, options = {})
         converter = new(tree, ::Kramdown::Options.merge(options.merge(tree.options[:options] || {})))
 
-        apply_template(converter, '') if !converter.options[:template].empty? && converter.apply_template_before?
+        apply_template(converter, EMPTY_STR) if !converter.options[:template].empty? && converter.apply_template_before?
         result = converter.convert(tree)
         result.encode!(tree.options[:encoding]) if result.respond_to?(:encode!) && result.encoding != Encoding::BINARY
         result = apply_template(converter, result) if !converter.options[:template].empty? && converter.apply_template_after?
@@ -140,7 +140,7 @@ module Kramdown
         elsif File.exist?(shipped)
           File.read(shipped)
         elsif template.start_with?('string://')
-          template.sub(/\Astring:\/\//, '')
+          template.sub(/\Astring:\/\//, EMPTY_STR)
         else
           get_template_new(template)
         end
@@ -156,7 +156,7 @@ module Kramdown
         elsif File.exist?(shipped)
           File.read(shipped)
         elsif template.start_with?('string://')
-          template.sub(/\Astring:\/\//, '')
+          template.sub(/\Astring:\/\//, EMPTY_STR)
         else
           raise "The specified template file #{template} does not exist"
         end
@@ -170,7 +170,7 @@ module Kramdown
       # Return +true+ if the header element +el+ should be used for the table of contents (as
       # specified by the +toc_levels+ option).
       def in_toc?(el)
-        @options[:toc_levels].include?(el.options[:level]) && (el.attr['class'] || '') !~ /\bno_toc\b/
+        @options[:toc_levels].include?(el.options[:level]) && (el.attr['class'] || EMPTY_STR) !~ /\bno_toc\b/
       end
 
       # Return the output header level given a level.
@@ -192,7 +192,7 @@ module Kramdown
       # *Warning*: This version will modify the given attributes if a language is present.
       def extract_code_language!(attr)
         lang = extract_code_language(attr)
-        attr['class'] = attr['class'].sub(/\blanguage-\S+/, '').strip if lang
+        attr['class'] = attr['class'].sub(/\blanguage-\S+/, EMPTY_STR).strip if lang
         attr.delete('class') if lang && attr['class'].empty?
         lang
       end
@@ -245,8 +245,8 @@ module Kramdown
       # The basic version of the ID generator, without any special provisions for empty or unique
       # IDs.
       def basic_generate_id(str)
-        gen_id = str.gsub(/^[^a-zA-Z]+/, '')
-        gen_id.tr!('^a-zA-Z0-9 -', '')
+        gen_id = str.gsub(/^[^a-zA-Z]+/, EMPTY_STR)
+        gen_id.tr!('^a-zA-Z0-9 -', EMPTY_STR)
         gen_id.tr!(' ', '-')
         gen_id.downcase!
         gen_id

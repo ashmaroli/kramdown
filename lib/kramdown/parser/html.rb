@@ -404,7 +404,7 @@ module Kramdown
           extract_text(el, raw)
           result = process_text(raw, true)
           begin
-            str = result.inject('') do |mem, c|
+            str = result.inject(EMPTY_STR) do |mem, c|
               if c.type == :text
                 mem << c.value
               elsif c.type == :entity
@@ -428,11 +428,11 @@ module Kramdown
           else
             if el.value == 'code'
               set_basics(el, :codespan)
-              el.attr['class'].gsub!(/\s+\bhighlighter-\w+\b|\bhighlighter-\w+\b\s*/, '') if el.attr['class']
+              el.attr['class'].gsub!(/\s+\bhighlighter-\w+\b|\bhighlighter-\w+\b\s*/, EMPTY_STR) if el.attr['class']
             else
               set_basics(el, :codeblock)
               if el.children.size == 1 && el.children.first.value == 'code'
-                value = (el.children.first.attr['class'] || '').scan(/\blanguage-\S+/).first
+                value = (el.children.first.attr['class'] || EMPTY_STR).scan(/\blanguage-\S+/).first
                 el.attr['class'] = "#{value} #{el.attr['class']}".rstrip if value
               end
             end

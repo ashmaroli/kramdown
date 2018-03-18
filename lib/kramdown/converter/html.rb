@@ -103,13 +103,13 @@ module Kramdown
           result.chomp!
           if el.attr['class'].to_s =~ /\bshow-whitespaces\b/
             result.gsub!(/(?:(^[ \t]+)|([ \t]+$)|([ \t]+))/) do |m|
-              suffix = ($1 ? '-l' : ($2 ? '-r' : ''))
+              suffix = ($1 ? '-l' : ($2 ? '-r' : EMPTY_STR))
               m.scan(/./).map do |c|
                 case c
                 when "\t" then "<span class=\"ws-tab#{suffix}\">\t</span>"
                 when " " then "<span class=\"ws-space#{suffix}\">&#8901;</span>"
                 end
-              end.join('')
+              end.join(EMPTY_STR)
             end
           end
           code_attr = {}
@@ -156,7 +156,7 @@ module Kramdown
         output = ' '*indent << "<#{el.type}" << html_attributes(el.attr) << ">"
         res = inner(el, indent)
         if el.children.empty? || (el.children.first.type == :p && el.children.first.options[:transparent])
-          output << res << (res =~ /\n\Z/ ? ' '*indent : '')
+          output << res << (res =~ /\n\Z/ ? ' '*indent : EMPTY_STR)
         else
           output << "\n" << res << ' '*indent
         end
@@ -168,7 +168,7 @@ module Kramdown
         attr = el.attr.dup
         @stack.last.options[:ial][:refs].each do |ref|
           if ref =~ /\Aauto_ids(?:-([\w-]+))?/
-            attr['id'] = ($1 ? $1 : '') << basic_generate_id(el.options[:raw_text])
+            attr['id'] = ($1 ? $1 : EMPTY_STR) << basic_generate_id(el.options[:raw_text])
             break
           end
         end if !attr['id'] && @stack.last.options[:ial] && @stack.last.options[:ial][:refs]
@@ -225,7 +225,7 @@ module Kramdown
         alignment = @stack[-3].options[:alignment][@stack.last.children.index(el)]
         if alignment != :default
           attr = el.attr.dup
-          attr['style'] = (attr.has_key?('style') ? "#{attr['style']}; ": '') << "text-align: #{alignment}"
+          attr['style'] = (attr.has_key?('style') ? "#{attr['style']}; ": EMPTY_STR) << "text-align: #{alignment}"
         end
         format_as_block_html(type, attr, res.empty? ? entity_to_str(ENTITY_NBSP) : res, indent)
       end
@@ -265,7 +265,7 @@ module Kramdown
       end
 
       def convert_footnote(el, indent)
-        repeat = ''
+        repeat = EMPTY_STR
         if (footnote = @footnotes_by_name[el.options[:name]])
           number = footnote[2]
           repeat = ":#{footnote[3] += 1}"
@@ -280,9 +280,9 @@ module Kramdown
 
       def convert_raw(el, indent)
         if !el.options[:type] || el.options[:type].empty? || el.options[:type].include?('html')
-          el.value + (el.options[:category] == :block ? "\n" : '')
+          el.value + (el.options[:category] == :block ? "\n" : EMPTY_STR)
         else
-          ''
+          EMPTY_STR
         end
       end
 
@@ -308,7 +308,7 @@ module Kramdown
         if (result = @options[:typographic_symbols][el.value])
           escape_html(result, :text)
         else
-          TYPOGRAPHIC_SYMS[el.value].map {|e| entity_to_str(e)}.join('')
+          TYPOGRAPHIC_SYMS[el.value].map {|e| entity_to_str(e)}.join(EMPTY_STR)
         end
       end
 
@@ -321,7 +321,7 @@ module Kramdown
           result
         else
           attr = el.attr.dup
-          (attr['class'] = (attr['class'] || '') << " kdmath").lstrip!
+          (attr['class'] = (attr['class'] || EMPTY_STR) << " kdmath").lstrip!
           if el.options[:category] == :block
             format_as_block_html('div', attr, "$$\n#{el.value}\n$$", indent)
           else
@@ -349,7 +349,7 @@ module Kramdown
           text = if toc_tree.children.size > 0
                    convert(toc_tree, 0)
                  else
-                   ''
+                   EMPTY_STR
                  end
           result.sub!(/#{@toc_code.last}/, text.gsub(/\\/, "\\\\\\\\"))
         end
@@ -375,8 +375,8 @@ module Kramdown
       # Add the syntax highlighter name to the 'class' attribute of the given attribute hash. And
       # overwrites or add a "language-LANG" part using the +lang+ parameter if +lang+ is not nil.
       def add_syntax_highlighter_to_class_attr(attr, lang = nil)
-        (attr['class'] = (attr['class'] || '') + " highlighter-#{@options[:syntax_highlighter]}").lstrip!
-        attr['class'].sub!(/\blanguage-\S+|(^)/) { "language-#{lang}#{$1 ? ' ' : ''}" } if lang
+        (attr['class'] = (attr['class'] || EMPTY_STR) + " highlighter-#{@options[:syntax_highlighter]}").lstrip!
+        attr['class'].sub!(/\blanguage-\S+|(^)/) { "language-#{lang}#{$1 ? ' ' : EMPTY_STR}" } if lang
       end
 
       # Generate and return an element tree for the table of contents.
@@ -480,7 +480,7 @@ module Kramdown
 
           unless @options[:footnote_backlink].empty?
             nbsp = entity_to_str(ENTITY_NBSP)
-            para.children << Element.new(:raw, FOOTNOTE_BACKLINK_FMT % [insert_space ? nbsp : '', name, backlink_text])
+            para.children << Element.new(:raw, FOOTNOTE_BACKLINK_FMT % [insert_space ? nbsp : EMPTY_STR, name, backlink_text])
             (1..repeat).each do |index|
               para.children << Element.new(:raw, FOOTNOTE_BACKLINK_FMT % [nbsp, "#{name}:#{index}", "#{backlink_text}<sup>#{index+1}</sup>"])
             end
@@ -489,7 +489,7 @@ module Kramdown
           ol.children << Element.new(:raw, convert(li, 4))
           i += 1
         end
-        (ol.children.empty? ? '' : format_as_indented_block_html('div', {:class => "footnotes"}, convert(ol, 2), 0))
+        (ol.children.empty? ? EMPTY_STR : format_as_indented_block_html('div', {:class => "footnotes"}, convert(ol, 2), 0))
       end
 
     end
