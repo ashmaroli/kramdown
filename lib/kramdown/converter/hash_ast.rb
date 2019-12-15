@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -19,13 +19,13 @@ module Kramdown
     class HashAST < Base
 
       def convert(el)
-        hash = {:type => el.type}
+        hash = {type: el.type}
         hash[:attr] = el.attr unless el.attr.empty?
         hash[:value] = el.value unless el.value.nil?
         hash[:options] = el.options unless el.options.empty?
         unless el.children.empty?
           hash[:children] = []
-          el.children.each {|child| hash[:children] << convert(child)}
+          el.children.each {|child| hash[:children] << convert(child) }
         end
         hash
       end

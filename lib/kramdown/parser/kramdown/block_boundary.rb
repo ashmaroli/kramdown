@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -19,8 +19,9 @@ module Kramdown
 
       # Return +true+ if we are after a block boundary.
       def after_block_boundary?
-        !@tree.children.last || @tree.children.last.type == :blank ||
-          (@tree.children.last.type == :eob && @tree.children.last.value.nil?) || @block_ial
+        last_child = @tree.children.last
+        !last_child || last_child.type == :blank ||
+          (last_child.type == :eob && last_child.value.nil?) || @block_ial
       end
 
       # Return +true+ if we are before a block boundary.

@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -52,8 +52,8 @@ module Kramdown
       def initialize(source, options)
         @source = source
         @options = Kramdown::Options.merge(options)
-        @root = Element.new(:root, nil, nil, :encoding => (source.encoding rescue nil), :location => 1,
-                            :options => {}, :abbrev_defs => {}, :abbrev_attr => {})
+        @root = Element.new(:root, nil, nil, encoding: (source.encoding rescue nil), location: 1,
+                            options: {}, abbrev_defs: {}, abbrev_attr: {})
         @warnings = []
         @text_type = :text
       end
@@ -83,7 +83,7 @@ module Kramdown
       # Add the given warning +text+ to the warning array.
       def warning(text)
         @warnings << text
-        #TODO: add position information
+        # TODO: add position information
       end
 
       # Modify the string +source+ to be usable by the parser (unifies line ending characters to
@@ -93,7 +93,9 @@ module Kramdown
           raise "The source text contains invalid characters for the used encoding #{source.encoding}"
         end
         source = source.encode('UTF-8')
-        source.gsub(/\r\n?/, "\n").chomp + "\n"
+        source.gsub!(/\r\n?/, "\n")
+        source.chomp!
+        source << "\n"
       end
 
       # This helper method adds the given +text+ either to the last element in the +tree+ if it is a
@@ -103,7 +105,8 @@ module Kramdown
         if last && last.type == type
           last.value << text
         elsif !text.empty?
-          tree.children << Element.new(type, text, nil, :location => (last && last.options[:location] || tree.options[:location]))
+          location = (last && last.options[:location] || tree.options[:location])
+          tree.children << Element.new(type, text, nil, location: location)
         end
       end
 

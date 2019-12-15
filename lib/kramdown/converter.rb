@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -25,7 +25,6 @@ module Kramdown
     autoload :Kramdown, 'kramdown/converter/kramdown'
     autoload :Toc, 'kramdown/converter/toc'
     autoload :RemoveHtmlTags, 'kramdown/converter/remove_html_tags'
-    autoload :Pdf, 'kramdown/converter/pdf'
     autoload :HashAST, 'kramdown/converter/hash_ast'
     autoload :HashAst, 'kramdown/converter/hash_ast'
     autoload :Man, 'kramdown/converter/man'
@@ -34,7 +33,7 @@ module Kramdown
 
     configurable(:syntax_highlighter)
 
-    ['Minted', "Coderay", "Rouge"].each do |klass_name|
+    ['Minted', "Rouge"].each do |klass_name|
       kn_down = klass_name.downcase.intern
       add_syntax_highlighter(kn_down) do |converter, text, lang, type, opts|
         require "kramdown/converter/syntax_highlighter/#{kn_down}"
@@ -42,7 +41,7 @@ module Kramdown
         if !klass.const_defined?(:AVAILABLE) || klass::AVAILABLE
           add_syntax_highlighter(kn_down, klass)
         else
-          add_syntax_highlighter(kn_down) {|*args| nil}
+          add_syntax_highlighter(kn_down) { nil }
         end
         syntax_highlighter(kn_down).call(converter, text, lang, type, opts)
       end
@@ -50,7 +49,7 @@ module Kramdown
 
     configurable(:math_engine)
 
-    ["Mathjax", "MathjaxNode", "Katex", "SsKaTeX", "Ritex", "Itex2MML"].each do |klass_name|
+    ["Mathjax"].each do |klass_name|
       kn_down = klass_name.downcase.intern
       add_math_engine(kn_down) do |converter, el, opts|
         require "kramdown/converter/math_engine/#{kn_down}"
@@ -58,7 +57,7 @@ module Kramdown
         if !klass.const_defined?(:AVAILABLE) || klass::AVAILABLE
           add_math_engine(kn_down, klass)
         else
-          add_math_engine(kn_down) {|*args| nil}
+          add_math_engine(kn_down) { nil }
         end
         math_engine(kn_down).call(converter, el, opts)
       end

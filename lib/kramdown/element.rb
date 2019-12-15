@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -42,6 +42,7 @@ module Kramdown
   #
   # :options:: This key may be used to store options that were set during parsing of the document.
   #
+  # :footnote_count:: This key stores the number of actually referenced footnotes of the document.
   #
   # === :blank
   #
@@ -482,17 +483,16 @@ module Kramdown
     # The child elements of this element.
     attr_accessor :children
 
-
     # Create a new Element object of type +type+. The optional parameters +value+, +attr+ and
     # +options+ can also be set in this constructor for convenience.
     def initialize(type, value = nil, attr = nil, options = nil)
-      @type, @value, @attr, @options = type, value, (Utils::OrderedHash.new.merge!(attr) if attr), options
+      @type, @value, @attr, @options = type, value, attr, options
       @children = []
     end
 
-    # The attributes of the element. Uses an Utils::OrderedHash to retain the insertion order.
+    # The attributes of the element.
     def attr
-      @attr ||= Utils::OrderedHash.new
+      @attr ||= {}
     end
 
     # The options hash for the element. It is used for storing arbitray options.
@@ -501,13 +501,18 @@ module Kramdown
     end
 
     def inspect #:nodoc:
-      "<kd:#{@type}#{@value.nil? ? '' : ' ' + @value.inspect} #{@attr.inspect}#{options.empty? ? '' : ' ' + @options.inspect}#{@children.empty? ? '' : ' ' + @children.inspect}>"
+      "<kd:#{@type}" \
+        "#{value.nil? ? '' : ' value=' + value.inspect}" \
+        "#{attr.empty? ? '' : ' attr=' + attr.inspect}" \
+        "#{options.empty? ? '' : ' options=' + options.inspect}" \
+        "#{children.empty? ? '' : ' children=' + children.inspect}>"
     end
 
     CATEGORY = {} # :nodoc:
-    [:blank, :p, :header, :blockquote, :codeblock, :ul, :ol, :li, :dl, :dt, :dd, :table, :td, :hr].each {|b| CATEGORY[b] = :block}
+    [:blank, :p, :header, :blockquote, :codeblock, :ul, :ol, :li, :dl, :dt, :dd,
+     :table, :td, :hr].each {|b| CATEGORY[b] = :block }
     [:text, :a, :br, :img, :codespan, :footnote, :em, :strong, :entity, :typographic_sym,
-     :smart_quote, :abbreviation].each {|b| CATEGORY[b] = :span}
+     :smart_quote, :abbreviation].each {|b| CATEGORY[b] = :span }
 
     # Return the category of +el+ which can be :block, :span or +nil+.
     #

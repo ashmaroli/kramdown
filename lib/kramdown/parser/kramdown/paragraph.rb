@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -17,7 +17,7 @@ module Kramdown
   module Parser
     class Kramdown
 
-      LAZY_END_HTML_SPAN_ELEMENTS = HTML_SPAN_ELEMENTS + %w{script}
+      LAZY_END_HTML_SPAN_ELEMENTS = HTML_SPAN_ELEMENTS + %w[script]
       LAZY_END_HTML_START = /<(?>(?!(?:#{LAZY_END_HTML_SPAN_ELEMENTS.join('|')})\b)#{REXML::Parsers::BaseParser::UNAME_STR})/
       LAZY_END_HTML_STOP = /<\/(?!(?:#{LAZY_END_HTML_SPAN_ELEMENTS.join('|')})\b)#{REXML::Parsers::BaseParser::UNAME_STR}\s*>/m
 
@@ -32,20 +32,20 @@ module Kramdown
         pos = @src.pos
         start_line_number = @src.current_line_number
         result = @src.scan(PARAGRAPH_MATCH)
-        while !@src.match?(paragraph_end)
+        until @src.match?(paragraph_end)
           result << @src.scan(PARAGRAPH_MATCH)
         end
         result.rstrip!
-        if @tree.children.last && @tree.children.last.type == :p
-          last_item_in_para = @tree.children.last.children.last
+        if (last_child = @tree.children.last) && last_child.type == :p
+          last_item_in_para = last_child.children.last
           if last_item_in_para && last_item_in_para.type == @text_type
             joiner = (extract_string((pos - 3)...pos, @src) == "  \n" ? "  \n" : "\n")
             last_item_in_para.value << joiner << result
           else
-            add_text(result, @tree.children.last)
+            add_text(result, last_child)
           end
         else
-          @tree.children << new_block_el(:p, nil, nil, :location => start_line_number)
+          @tree.children << new_block_el(:p, nil, nil, location: start_line_number)
           result.lstrip!
           add_text(result, @tree.children.last)
         end

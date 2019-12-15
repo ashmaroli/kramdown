@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
-# Copyright (C) 2009-2016 Thomas Leitner <t_leitner@gmx.at>
+# Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
 #
 # This file is part of kramdown which is licensed under the MIT.
 #++
@@ -16,8 +16,8 @@ module Kramdown
       # Parse the blank line at the current postition.
       def parse_blank_line
         @src.pos += @src.matched_size
-        if @tree.children.last && @tree.children.last.type == :blank
-          @tree.children.last.value << @src.matched
+        if (last_child = @tree.children.last) && last_child.type == :blank
+          last_child.value << @src.matched
         else
           @tree.children << new_block_el(:blank, @src.matched)
         end

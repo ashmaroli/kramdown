@@ -1,34 +1,35 @@
+dist: xenial
 language: ruby
 rvm:
-  - 2.1
-  - 2.2
   - 2.3
-  - 2.4.4
-  - 2.5.1
+  - 2.4
+  - 2.5
+  - &latest_ruby 2.6
   - jruby-head
 
-jdk:
-  - oraclejdk8
-
-env:
-  global:
-    - TRAVIS_NODE_VERSION="6.0"
-
 matrix:
+  include:
+    - rvm: *latest_ruby
+      script: rake dev:profile_memory
+      name: Profile Memory Usage
   allow_failures:
     - rvm: jruby-head
 
+addons:
+  apt:
+    packages:
+      - texlive-latex-base
+      - texlive-latex-recommended
+      - texlive-fonts-recommended
+      - texlive-latex-extra
+
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install texlive-latex-base texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra tidy
   - gem install rake
-  - gem install minitest coderay stringex ritex execjs sskatex
-  - "ruby -e 'exit RUBY_VERSION < \"2.3\" ? 0 : 1' || gem install katex -v 0.4.3"
+  - gem install minitest stringex
   - gem install rouge
-  - gem install prawn prawn-table
-  - (ruby --version | grep jruby) || gem install itextomml
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
-  - npm install mathjax-node-cli cssstyle
-  - curl -L 'https://github.com/Khan/KaTeX/releases/download/v0.9.0/katex.tar.gz' | tar xzf - 'katex/katex.min.js'
+  - gem install memory_profiler
+  - wget https://github.com/htacg/tidy-html5/releases/download/5.4.0/tidy-5.4.0-64bit.deb
+  - sudo apt purge libtidy-0.99-0
+  - sudo dpkg -i tidy-5.4.0-64bit.deb
 
 script: ruby -Ilib:test test/test_*
