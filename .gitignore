@@ -3,5 +3,4 @@ pkg
 webgen-tmp
 CONTRIBUTERS
 VERSION
-kramdown.gemspec
 man/man1/kramdown.1
